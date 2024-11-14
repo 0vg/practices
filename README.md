@@ -1,70 +1,89 @@
-# Good NextJS practices
+# Best Practices to Avoid High Vercel Bills
 
-This is a short recap of Theo - T3.gg's video on "How to avoid big serverless bills".
+This is a recap of the video discussing how to avoid large Vercel bills by implementing various optimization strategies.
 
-1. Manage Bandwidth Costs
+## 1. Manage Bandwidth Costs
 
-   - Avoid Large Files in the Public Directory:
-     - Issue: Placing large assets (e.g., videos, large images) in the public directory leads to them being served via Vercel’s CDN, which incurs high bandwidth costs.
-     - Best Practice:
-       Keep Public Assets Small: Limit files in the public directory to under 4KB.
-       Use Dedicated Asset Hosts: For larger files, utilize services like Uploadthing, Amazon S3, Vercel R2, or Blob Storage. This helps offload bandwidth usage from Vercel, reducing costs significantly.
-       Implementation Tip: Upload large assets to an external host and update your website to reference these external URLs instead of serving them directly from Vercel.
+### **Avoid Large Files in the Public Directory**
 
-2. Optimize Image Handling
+- **Issue:** Large assets (e.g., videos, large images) placed in the `public` directory are served via Vercel’s CDN, leading to high bandwidth costs.
+- **Best Practices:**
+  - **Limit Public Assets Size:** Keep files in the `public` directory under 4KB.
+  - **Use Dedicated Asset Hosts:** Utilize services like **Uploadthing**, **Amazon S3**, **Vercel R2**, or **Blob Storage** for larger files.
+  - **Implementation Tip:** Upload large assets to an external host and update your website to reference these external URLs instead of serving them directly from Vercel.
 
-   Efficient Image Optimization:
-   Issue: Vercel’s image optimizer can become costly, especially with high numbers of image requests and optimizations.
-   Best Practices:
-   Limit Image Optimizations: Keep image optimizations below Vercel’s free tier (e.g., 5,000 optimizations). Beyond this, consider alternative solutions.
-   Restrict Optimization Paths: Ensure your image optimization endpoints are secure to prevent abuse. For example, limit optimizations to specific domains or paths.
-   Use Alternative Image Hosts: Services like Image Engineering (upcoming) or other image hosting solutions can offer more cost-effective optimization.
-   DIY Caching: Implement server-side caching for images using KV stores or similar technologies to reduce repeated optimizations and associated costs.
+## 2. Optimize Image Handling
 
-3. Optimize Serverless Functions
+### **Efficient Image Optimization**
 
-   Efficient Code Practices:
-   Issue: Poorly optimized serverless functions, such as making multiple blocking database calls, can lead to excessive compute times and high costs.
-   Best Practices:
-   Minimize Database Calls: Use optimized queries that fetch all necessary data in a single request. Utilize relations and efficient data fetching strategies.
-   Use Concurrency: Implement Promise.all to run independent operations concurrently, reducing total compute time.
-   Implement Queues for Long-Running Tasks: Offload heavy computations or external API calls to background jobs using services like Inest or trigger.dev. This prevents serverless functions from being blocked and reduces costs.
-   Leverage Vercel’s Concurrency Model: Utilize Vercel’s concurrency features to allow multiple requests to share the same serverless instance when waiting on external operations, thereby lowering compute costs.
+- **Issue:** Vercel’s image optimizer can become costly with a high number of image requests and optimizations.
+- **Best Practices:**
+  - **Limit Image Optimizations:** Keep image optimizations below Vercel’s free tier (e.g., 5,000 optimizations). Beyond this, consider alternative solutions.
+  - **Restrict Optimization Paths:** Ensure your image optimization endpoints are secure to prevent abuse. For example, limit optimizations to specific domains or paths.
+  - **Use Alternative Image Hosts:** Consider services like **Image Engineering** or other image hosting solutions for more cost-effective optimization.
+  - **Implement Server-Side Caching:** Use KV stores or similar technologies to cache images, reducing repeated optimizations and associated costs.
 
-   Caching Strategies:
-   Use Server-Side Caching: Implement caching mechanisms (e.g., unstable_cache in Vercel) to store frequently accessed data, minimizing repeated computations and database queries.
-   Invalidate Cache Appropriately: Ensure that cached data is refreshed when necessary by using revalidation tags or other cache invalidation strategies.
+## 3. Optimize Serverless Functions
 
-4. Utilize Static Generation for Suitable Pages
+### **Efficient Code Practices**
 
-   Static vs. Dynamic Pages:
-   Issue: Rendering pages dynamically when they could be statically generated leads to unnecessary serverless compute, increasing costs.
-   Best Practices:
-   Static Generation (SSG): Use SSG for pages that do not require dynamic data (e.g., terms of service, blog posts).
-   Check Build Outputs: Use Vercel’s build output and deployment summaries to ensure that as many pages as possible are statically generated.
-   Avoid Forcing Dynamic Rendering: Ensure that pages without user-specific data are not set to be dynamically rendered, which would trigger serverless functions on each request.
+- **Issue:** Poorly optimized serverless functions, such as making multiple blocking database calls, can lead to excessive compute times and high costs.
+- **Best Practices:**
+  - **Minimize Database Calls:** Use optimized queries that fetch all necessary data in a single request. Utilize relations and efficient data fetching strategies.
+  - **Use Concurrency:** Implement `Promise.all` to run independent operations concurrently, reducing total compute time.
+  - **Implement Queues for Long-Running Tasks:** Offload heavy computations or external API calls to background jobs using services like **Inest** or **trigger.dev**. This prevents serverless functions from being blocked and reduces costs.
+  - **Leverage Vercel’s Concurrency Model:** Utilize Vercel’s concurrency features to allow multiple requests to share the same serverless instance when waiting on external operations, thereby lowering compute costs.
 
-5. Optimize Analytics Usage
+### **Caching Strategies**
 
-   Choose Cost-Effective Analytics Tools:
-   Issue: Vercel’s built-in analytics can become expensive at scale, especially when tracking a high number of events.
-   Best Practices:
-   Use Dedicated Analytics Services: Prefer using tools like PostHog, Amplitude, or Mixpanel for product analytics and Google Analytics or similar for web analytics.
-   Monitor Event Usage: Be mindful of the number of events tracked to stay within cost-effective tiers. For example, PostHog offers a generous free tier with cost-effective pricing beyond that.
-   Avoid Vercel Analytics if Cost-Prohibitive: Unless Vercel reduces their analytics pricing, consider alternative solutions to manage costs effectively.
+- **Use Server-Side Caching:** Implement caching mechanisms (e.g., `unstable_cache` in Vercel) to store frequently accessed data, minimizing repeated computations and database queries.
+- **Invalidate Cache Appropriately:** Ensure that cached data is refreshed when necessary by using revalidation tags or other cache invalidation strategies.
 
-6. Implement Spend Management Controls
+## 4. Utilize Static Generation for Suitable Pages
 
-   Set Budget Limits:
-   Issue: Unexpected spikes in usage can lead to unexpectedly high bills.
-   Best Practices:
-   Use Vercel’s Spend Management: Set a spending limit within Vercel’s billing settings to cap your monthly expenses.
-   Enable Notifications: Configure alerts to notify you when usage approaches predefined thresholds.
-   Be Aware of Service Downtime: Setting a spend limit may result in service interruptions once the limit is reached, so use this feature judiciously.
+### **Static vs. Dynamic Pages**
 
-7. General Best Practices Applicable to Other Platforms
+- **Issue:** Rendering pages dynamically when they could be statically generated leads to unnecessary serverless compute, increasing costs.
+- **Best Practices:**
+  - **Static Generation (SSG):** Use SSG for pages that do not require dynamic data (e.g., terms of service, blog posts).
+  - **Check Build Outputs:** Use Vercel’s build output and deployment summaries to ensure that as many pages as possible are statically generated.
+  - **Avoid Forcing Dynamic Rendering:** Ensure that pages without user-specific data are not set to be dynamically rendered, which would trigger serverless functions on each request.
 
-   Keep Code and Infrastructure Simple:
-   Minimize Complexity: Simplify your codebase and infrastructure to reduce unnecessary compute and resource usage.
-   Understand Billing Models: Familiarize yourself with the billing structures of the platforms you use (e.g., Vercel, Netlify, Cloudflare) to make informed decisions about resource allocation.
-   Monitor and Audit Regularly: Continuously monitor your usage and audit your deployments to identify and address potential cost drivers promptly.
+## 5. Optimize Analytics Usage
+
+### **Choose Cost-Effective Analytics Tools**
+
+- **Issue:** Vercel’s built-in analytics can become expensive at scale, especially when tracking a high number of events.
+- **Best Practices:**
+  - **Use Dedicated Analytics Services:** Prefer tools like **PostHog**, **Amplitude**, or **Mixpanel** for product analytics and **Google Analytics** or similar for web analytics.
+  - **Monitor Event Usage:** Be mindful of the number of events tracked to stay within cost-effective tiers. For example, PostHog offers a generous free tier with cost-effective pricing beyond that.
+  - **Avoid Vercel Analytics if Cost-Prohibitive:** Unless Vercel reduces their analytics pricing, consider alternative solutions to manage costs effectively.
+
+## 6. Implement Spend Management Controls
+
+### **Set Budget Limits**
+
+- **Issue:** Unexpected spikes in usage can lead to unexpectedly high bills.
+- **Best Practices:**
+  - **Use Vercel’s Spend Management:** Set a spending limit within Vercel’s billing settings to cap your monthly expenses.
+  - **Enable Notifications:** Configure alerts to notify you when usage approaches predefined thresholds.
+  - **Be Aware of Service Downtime:** Setting a spend limit may result in service interruptions once the limit is reached, so use this feature judiciously.
+
+## 7. General Best Practices Applicable to Other Platforms
+
+### **Keep Code and Infrastructure Simple**
+
+- **Minimize Complexity:** Simplify your codebase and infrastructure to reduce unnecessary compute and resource usage.
+- **Understand Billing Models:** Familiarize yourself with the billing structures of the platforms you use (e.g., Vercel, Netlify, Cloudflare) to make informed decisions about resource allocation.
+- **Monitor and Audit Regularly:** Continuously monitor your usage and audit your deployments to identify and address potential cost drivers promptly.
+
+---
+
+## Final Takeaways
+
+- **Proactive Management:** Regularly review and optimize your deployment configurations, asset handling, serverless functions, and analytics to keep costs under control.
+- **Use External Services Wisely:** Offloading specific tasks (like image hosting or background jobs) to specialized services can lead to significant cost savings.
+- **Leverage Caching and Static Generation:** Effective use of caching strategies and static site generation can drastically reduce compute costs and improve performance.
+- **Stay Informed and Adapt:** Keep abreast of platform updates and new features that can help optimize your deployments further.
+
+By adhering to these best practices, you can maintain low operational costs on Vercel (or similar platforms) while ensuring your applications remain performant and scalable.
