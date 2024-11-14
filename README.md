@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Good NextJS practices
 
-## Getting Started
+This is a short recap of Theo - T3.gg's video on "How to avoid big serverless bills".
 
-First, run the development server:
+1. Manage Bandwidth Costs
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+   - Avoid Large Files in the Public Directory:
+     - Issue: Placing large assets (e.g., videos, large images) in the public directory leads to them being served via Vercel’s CDN, which incurs high bandwidth costs.
+     - Best Practice:
+       Keep Public Assets Small: Limit files in the public directory to under 4KB.
+       Use Dedicated Asset Hosts: For larger files, utilize services like Uploadthing, Amazon S3, Vercel R2, or Blob Storage. This helps offload bandwidth usage from Vercel, reducing costs significantly.
+       Implementation Tip: Upload large assets to an external host and update your website to reference these external URLs instead of serving them directly from Vercel.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Optimize Image Handling
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+   Efficient Image Optimization:
+   Issue: Vercel’s image optimizer can become costly, especially with high numbers of image requests and optimizations.
+   Best Practices:
+   Limit Image Optimizations: Keep image optimizations below Vercel’s free tier (e.g., 5,000 optimizations). Beyond this, consider alternative solutions.
+   Restrict Optimization Paths: Ensure your image optimization endpoints are secure to prevent abuse. For example, limit optimizations to specific domains or paths.
+   Use Alternative Image Hosts: Services like Image Engineering (upcoming) or other image hosting solutions can offer more cost-effective optimization.
+   DIY Caching: Implement server-side caching for images using KV stores or similar technologies to reduce repeated optimizations and associated costs.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Optimize Serverless Functions
 
-## Learn More
+   Efficient Code Practices:
+   Issue: Poorly optimized serverless functions, such as making multiple blocking database calls, can lead to excessive compute times and high costs.
+   Best Practices:
+   Minimize Database Calls: Use optimized queries that fetch all necessary data in a single request. Utilize relations and efficient data fetching strategies.
+   Use Concurrency: Implement Promise.all to run independent operations concurrently, reducing total compute time.
+   Implement Queues for Long-Running Tasks: Offload heavy computations or external API calls to background jobs using services like Inest or trigger.dev. This prevents serverless functions from being blocked and reduces costs.
+   Leverage Vercel’s Concurrency Model: Utilize Vercel’s concurrency features to allow multiple requests to share the same serverless instance when waiting on external operations, thereby lowering compute costs.
 
-To learn more about Next.js, take a look at the following resources:
+   Caching Strategies:
+   Use Server-Side Caching: Implement caching mechanisms (e.g., unstable_cache in Vercel) to store frequently accessed data, minimizing repeated computations and database queries.
+   Invalidate Cache Appropriately: Ensure that cached data is refreshed when necessary by using revalidation tags or other cache invalidation strategies.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. Utilize Static Generation for Suitable Pages
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   Static vs. Dynamic Pages:
+   Issue: Rendering pages dynamically when they could be statically generated leads to unnecessary serverless compute, increasing costs.
+   Best Practices:
+   Static Generation (SSG): Use SSG for pages that do not require dynamic data (e.g., terms of service, blog posts).
+   Check Build Outputs: Use Vercel’s build output and deployment summaries to ensure that as many pages as possible are statically generated.
+   Avoid Forcing Dynamic Rendering: Ensure that pages without user-specific data are not set to be dynamically rendered, which would trigger serverless functions on each request.
 
-## Deploy on Vercel
+5. Optimize Analytics Usage
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Choose Cost-Effective Analytics Tools:
+   Issue: Vercel’s built-in analytics can become expensive at scale, especially when tracking a high number of events.
+   Best Practices:
+   Use Dedicated Analytics Services: Prefer using tools like PostHog, Amplitude, or Mixpanel for product analytics and Google Analytics or similar for web analytics.
+   Monitor Event Usage: Be mindful of the number of events tracked to stay within cost-effective tiers. For example, PostHog offers a generous free tier with cost-effective pricing beyond that.
+   Avoid Vercel Analytics if Cost-Prohibitive: Unless Vercel reduces their analytics pricing, consider alternative solutions to manage costs effectively.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+6. Implement Spend Management Controls
+
+   Set Budget Limits:
+   Issue: Unexpected spikes in usage can lead to unexpectedly high bills.
+   Best Practices:
+   Use Vercel’s Spend Management: Set a spending limit within Vercel’s billing settings to cap your monthly expenses.
+   Enable Notifications: Configure alerts to notify you when usage approaches predefined thresholds.
+   Be Aware of Service Downtime: Setting a spend limit may result in service interruptions once the limit is reached, so use this feature judiciously.
+
+7. General Best Practices Applicable to Other Platforms
+
+   Keep Code and Infrastructure Simple:
+   Minimize Complexity: Simplify your codebase and infrastructure to reduce unnecessary compute and resource usage.
+   Understand Billing Models: Familiarize yourself with the billing structures of the platforms you use (e.g., Vercel, Netlify, Cloudflare) to make informed decisions about resource allocation.
+   Monitor and Audit Regularly: Continuously monitor your usage and audit your deployments to identify and address potential cost drivers promptly.
