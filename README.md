@@ -9,7 +9,7 @@ This is a recap of the video discussing how to avoid large Vercel bills by imple
 - **Issue:** Large assets (e.g., videos, large images) placed in the `public` directory are served via Vercel’s CDN, leading to high bandwidth costs.
 - **Best Practices:**
   - **Limit Public Assets Size:** Keep files in the `public` directory under 4KB.
-  - **Use Dedicated Asset Hosts:** Utilize services like **Uploadthing**, **Amazon S3**, **Vercel R2**, or **Blob Storage** for larger files.
+  - **Use Dedicated Asset Hosts:** Utilize services like **Uploadthing**, **Amazon S3**, **Cloudflare R2**, or **Blob Storage** for larger files.
   - **Implementation Tip:** Upload large assets to an external host and update your website to reference these external URLs instead of serving them directly from Vercel.
 
 ## 2. Optimize Image Handling
